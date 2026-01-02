@@ -1,224 +1,287 @@
-// ---------------- NAVBAR ----------------
-document.querySelector(".navbars").innerHTML = `
-  <div class="navbar">
-    <div class="logo"><a href="index.html">ABC I/C</a></div>
-    <div class="hamburger" id="hamburger">&#9776;</div>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="wall.html">Wall</a></li>
-      <li><a href="celling.html">Celling</a></li>
-      <li><a href="flooring.html">Flooring</a></li>
-      <li><a href="Electric.html">Electric</a></li>
-      <li><a href="waterprofing.html">Waterproofing</a></li>
-    </ul>
-  </div>
-`;
+//================= FIREBASE =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  addDoc,
+  collection,
+  getDocs,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyCpyW8pYupSwSk8gMjMwzzscTB3Z2V2H5o",
+  authDomain: "floor-inspection.firebaseapp.com",
+  projectId: "floor-inspection",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ================= GLOBAL =================
+let isSubmitting = false;
+const roomCount = {};
+
+// ================= DOM READY =================
 document.addEventListener("DOMContentLoaded", () => {
-  const hamburger = document.getElementById('hamburger');
-  const navLinks = document.getElementById('navLinks');
-  if (hamburger && navLinks) {
-    hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
+
+  // ================= NAVBAR =================
+  const navbarDiv = document.querySelector(".navbars");
+  if (navbarDiv) {
+    navbarDiv.innerHTML = `
+      <div class="navbar">
+        <div class="logo"><a href="index.html">ABC I/C</a></div>
+
+        <!-- HAMBURGER -->
+        <div class="hamburger" id="hamburger">&#9776;</div>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="wall.html">Wall</a></li>
+          <li><a href="celling.html">Ceiling</a></li>
+          <li><a href="flooring.html">Flooring</a></li>
+          <li><a href="Electric.html">Electric</a></li>
+          <li><a href="waterprofing.html">Waterproofing</a></li>
+          <li><a href="customerdata.html">Customers</a></li>
+        </ul>
+      </div>
+    `;
   }
-});
 
-// ---------------- TABULAR FORMAT & GRAPH ----------------
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.querySelector(".service-form");
-  if (!form) return;
+  // ================= HAMBURGER TOGGLE =================
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("navLinks");
 
-  // ---------- CREATE TABLE ----------
-  const tableWrapper = document.createElement("div");
-  tableWrapper.style.margin = "40px auto";
-  tableWrapper.style.width = "90%";
-  tableWrapper.style.background = "#fff";
-  tableWrapper.style.padding = "20px";
-  tableWrapper.style.borderRadius = "8px";
-  tableWrapper.innerHTML = `
-    <h2 style="text-align:center;margin-bottom:15px;">Submitted Data</h2>
-    <table border="1" style="width:100%; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th>Service Type</th>
-          <th>Room</th>
-          <th>Problem</th>
-          <th>Inspection Comments</th>
-          <th>Image</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  `;
-  form.after(tableWrapper);
-  const tableBody = document.getElementById("tableBody");
-
-  // ---------- CREATE GRAPH ----------
-  const graphWrapper = document.createElement("div");
-  graphWrapper.style.width = "90%";
-  graphWrapper.style.margin = "40px auto";
-  graphWrapper.style.background = "#fff";
-  graphWrapper.style.padding = "20px";
-  graphWrapper.style.borderRadius = "8px";
-  graphWrapper.innerHTML = `
-    <h2 style="text-align:center;margin-bottom:15px;">Room-wise Inspection Graph</h2>
-    <canvas id="roomChart" height="300"></canvas>
-  `;
-  tableWrapper.after(graphWrapper);
-
-  const canvas = document.getElementById("roomChart");
-  const ctx = canvas.getContext("2d");
-  const roomCount = {};
-
-  function drawChart() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const labels = Object.keys(roomCount);
-    const values = Object.values(roomCount);
-    if (!labels.length) return;
-
-    const maxValue = Math.max(...values);
-    const barWidth = 50;
-    const gap = 30;
-    const startX = 50;
-    const baseY = 250;
-
-    // Dynamically expand canvas width to fit all bars
-    canvas.width = Math.max(500, labels.length * (barWidth + gap) + 100);
-
-    ctx.font = "14px Arial";
-    labels.forEach((label, index) => {
-      const barHeight = (values[index] / maxValue) * 180;
-      const x = startX + index * (barWidth + gap);
-      const y = baseY - barHeight;
-
-      // Bar
-       ctx.font = "16px Arial";   // change size here
-      ctx.fillStyle = "#2563eb";
-      ctx.fillRect(x, y, barWidth, barHeight);
-
-      // Value
-      ctx.fillStyle = "#000";
-      ctx.fillText(values[index], x + 15, y - 5);
-
-      // Label
-      ctx.font = "9.5px Arial";   // change size here
-      ctx.fillText(label, x - 5, baseY + 20);
+  if (hamburger && navLinks) {
+    hamburger.addEventListener("click", () => {
+      navLinks.classList.toggle("show");
     });
   }
 
-  // ---------- FORM SUBMIT ----------
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const serviceType = document.getElementById("serviceType").value;
-    const room = document.getElementById("roomType").value;
-    const problem = document.getElementById("problemType").value;
-    const comments = document.getElementById("area").value;
-    const imageInput = document.getElementById("image");
-    const file = imageInput.files[0];
+  // 🔽🔽 KEEP ALL YOUR EXISTING CODE BELOW AS IT IS 🔽🔽
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${serviceType}</td>
-      <td>${room}</td>
-      <td>${problem}</td>
-      <td>${comments}</td>
-      <td></td>
-    `;
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        row.cells[4].dataset.imgData = event.target.result; // store image data for PDF
-        row.cells[4].textContent = file.name; // display image name in table
+  // ================= CUSTOMER FORM (index.html) =================
+  const customerForm = document.getElementById("inspectionForm");
+  if (customerForm) {
+    customerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      try {
+        const phone = document.getElementById("phone").value;
+
+        await setDoc(doc(db, "customers", phone), {
+          name: document.getElementById("customerName").value,
+          address: document.getElementById("customerAddress").value,
+          phone,
+          sqt: document.getElementById("sqt").value,
+          createdAt: serverTimestamp()
+        });
+
+        localStorage.setItem("activeCustomerPhone", phone);
+        alert("Customer saved");
+        customerForm.reset();
+
+      } catch (err) {
+        alert("Error saving customer");
       }
-      reader.readAsDataURL(file);
-    } else {
-      row.cells[4].textContent = "No Image";
-    }
 
-    tableBody.appendChild(row);
+      isSubmitting = false;
+    });
+  }
 
-    roomCount[room] = roomCount[room] ? roomCount[room] + 1 : 1;
-    drawChart();
+  // ================= SERVICE FORM (flooring, wall, etc) =================
+  const serviceForm = document.querySelector(".service-form");
+  if (serviceForm && !customerForm) {
 
-    form.reset();
-  });
+    // ----- TABLE -----
+    serviceForm.insertAdjacentHTML("afterend", `
+      <br>
+      <h3 style="margin-left:45%;">Inspection Table</h3>
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Room</th><th>Service</th><th>Problem</th><th>Comments</th><th>Image</th>
+          </tr>
+        </thead>
+        <tbody id="serviceTableBody"></tbody>
+      </table>
+      <button id="downloadPdf">Download PDF</button>
+      <canvas id="roomChart" height="250"></canvas>
+    `);
 
-  // ---------- DOWNLOAD PDF BUTTON ----------
-  const downloadBtn = document.createElement("button");
-  downloadBtn.textContent = "Download PDF";
-  downloadBtn.style.display = "block";
-  downloadBtn.style.margin = "20px auto";
-  downloadBtn.style.padding = "12px 25px";
-  downloadBtn.style.background = "#2563eb";
-  downloadBtn.style.color = "#fff";
-  downloadBtn.style.border = "none";
-  downloadBtn.style.borderRadius = "5px";
-  downloadBtn.style.cursor = "pointer";
-  graphWrapper.appendChild(downloadBtn);
+    const tableBody = document.getElementById("serviceTableBody");
+    const canvas = document.getElementById("roomChart");
+    const ctx = canvas.getContext("2d");
 
-  // ---------- DOWNLOAD PDF FUNCTIONALITY ----------
-  downloadBtn.addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    let y = 40;
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 40;
-    const lineHeight = 18;
-    const cellSpacing = 10;
+    function drawGraph() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const rooms = Object.keys(roomCount);
+      if (!rooms.length) return;
 
-    // PDF TITLE
-    pdf.setFontSize(20);
-    pdf.text("ABC Interior Solutions - Inspection Report", pageWidth / 2, y, { align: "center" });
-    y += 30;
+      canvas.width = rooms.length * 100;
+      const max = Math.max(...Object.values(roomCount));
 
-    // ---------------- TABLE ----------------
-    const rows = Array.from(tableBody.querySelectorAll("tr"));
-    if (rows.length === 0) {
-      pdf.setFontSize(14);
-      pdf.text("No inspection data submitted yet.", margin, y);
-      y += lineHeight;
-    } else {
-      rows.forEach((row, i) => {
-        const cells = row.querySelectorAll("td");
-        pdf.setFontSize(12);
-        pdf.text(`Entry ${i + 1}`, margin, y);
-        y += lineHeight;
-
-        pdf.text(`Service: ${cells[0].textContent}`, margin, y); y += lineHeight;
-        pdf.text(`Room: ${cells[1].textContent}`, margin, y); y += lineHeight;
-        pdf.text(`Problem: ${cells[2].textContent}`, margin, y); y += lineHeight;
-        pdf.text(`Comments: ${cells[3].textContent}`, margin, y); y += lineHeight;
-
-        const imgData = cells[4].dataset.imgData;
-        if (imgData) {
-          const imgProps = pdf.getImageProperties(imgData);
-          const imgWidth = pageWidth - 2 * margin;
-          const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-          if (y + imgHeight > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin; }
-          pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
-          y += imgHeight + cellSpacing;
-        } else {
-          y += cellSpacing;
-        }
-
-        if (y > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin; }
+      rooms.forEach((room, i) => {
+        const h = (roomCount[room] / max) * 180;
+        ctx.fillStyle = "#2563eb";
+        ctx.fillRect(i * 80 + 30, 200 - h, 40, h);
+        ctx.fillStyle = "#000";
+        ctx.fillText(room, i * 80 + 30, 220);
       });
     }
 
-    // ---------------- CHART ----------------
-    y += 20; // spacing before chart
-    pdf.setFontSize(16);
-    pdf.text("Room-wise Inspection Graph", pageWidth / 2, y, { align: "center" });
+    serviceForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      try {
+        const phone = localStorage.getItem("activeCustomerPhone");
+        if (!phone) {
+          alert("Add customer first");
+          isSubmitting = false;
+          return;
+        }
+
+        const room = roomType.value;
+        const service = serviceType.value;
+        const problem = problemType.value;
+        const comments = area.value;
+        const imgFile = image.files[0];
+
+        let imgBase64 = "";
+        if (imgFile) imgBase64 = await toBase64(imgFile);
+
+        tableBody.innerHTML += `
+          <tr>
+            <td>${room}</td>
+            <td>${service}</td>
+            <td>${problem}</td>
+            <td>${comments}</td>
+            <td>${imgBase64 ? `<img src="${imgBase64}" width="60">` : "No Image"}</td>
+          </tr>
+        `;
+
+        roomCount[room] = (roomCount[room] || 0) + 1;
+        drawGraph();
+
+        await addDoc(collection(db, "customers", phone, "inspections"), {
+          room, service, problem, comments,
+          createdAt: serverTimestamp()
+        });
+
+        serviceForm.reset();
+
+      } catch (err) {
+        alert("Inspection failed");
+      }
+
+      isSubmitting = false;
+    });
+  }
+
+  // ================= CUSTOMER VIEW PAGE =================
+  const customerSelect = document.getElementById("customerSelect");
+  if (customerSelect) {
+    loadCustomers(customerSelect);
+
+    customerSelect.addEventListener("change", async () => {
+      const phone = customerSelect.value;
+      const info = document.getElementById("customerInfo");
+      const tbody = document.getElementById("inspectionTableBody");
+
+      info.innerHTML = "";
+      tbody.innerHTML = "";
+      if (!phone) return;
+
+      const snap = await getDocs(collection(db, "customers", phone, "inspections"));
+      snap.forEach(d => {
+        const i = d.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${i.room}</td>
+            <td>${i.service}</td>
+            <td>${i.problem}</td>
+            <td>${i.comments}</td>
+          </tr>
+        `;
+      });
+    });
+  }
+});
+
+// ================= HELPERS =================
+async function loadCustomers(select) {
+  const snap = await getDocs(collection(db, "customers"));
+  snap.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = d.id;
+    select.appendChild(opt);
+  });
+}
+
+function toBase64(file) {
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsDataURL(file);
+  });
+}
+
+// ================= PDF DOWNLOAD =================
+document.addEventListener("click", async (e) => {
+  if (e.target.id !== "downloadPdf") return;
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.setFontSize(16);
+  pdf.text("Inspection Report", 10, 15);
+
+  let y = 25;
+  let count = 1;
+
+  const rows = document.querySelectorAll("#serviceTableBody tr");
+
+  for (const row of rows) {
+    const cols = row.querySelectorAll("td");
+
+    const room = cols[0].innerText;
+    const service = cols[1].innerText;
+    const problem = cols[2].innerText;
+    const comments = cols[3].innerText;
+    const img = cols[4].querySelector("img");
+
+    pdf.setFontSize(13);
+    pdf.text(`Inspection ${count}`, 10, y);
+    y += 8;
+
+    pdf.setFontSize(11);
+    pdf.text(`Room     : ${room}`, 12, y); y += 6;
+    pdf.text(`Service  : ${service}`, 12, y); y += 6;
+    pdf.text(`Problem  : ${problem}`, 12, y); y += 6;
+    pdf.text(`Comments : ${comments}`, 12, y); y += 8;
+
+    if (img) {
+      pdf.rect(12, y, 60, 40); // border
+      pdf.addImage(img.src, "PNG", 13, y + 1, 58, 38); // image
+      y += 45;
+    }
+
+    pdf.line(10, y, 200, y); // separator
     y += 10;
 
-    // Capture chart
-    const chartCanvas = document.getElementById("roomChart");
-    const chartImg = chartCanvas.toDataURL("image/png");
-    const chartProps = pdf.getImageProperties(chartImg);
-    const chartHeight = (chartProps.height * pageWidth) / chartProps.width;
+    if (y > 260) {
+      pdf.addPage();
+      y = 20;
+    }
 
-    if (y + chartHeight > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin; }
-    pdf.addImage(chartImg, 'PNG', 0, y, pageWidth, chartHeight);
+    count++;
+  }
 
-    pdf.save("inspection_report.pdf");
-  });
+  pdf.save("inspection-report.pdf");
 });
