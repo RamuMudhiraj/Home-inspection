@@ -1,38 +1,92 @@
-
-<!DOCTYPE html> <!-- Declares the document type and version of HTML (HTML5 in this case) -->
-<html lang="en"> <!-- Specifies the language of the document (English) -->
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8"> <!-- Specifies the character encoding (UTF-8) for special characters -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ensures the page is responsive on different screen sizes (essential for mobile devices) -->
-    <title>homepage</title> <!-- Sets the title of the webpage (appears in the browser tab) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABC Interior Solutions</title>
 
-    <link rel="stylesheet" href="style.css"> <!-- Links an external CSS file for styling -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-      <div class="navbars"> <!-- This div will contain the navbar, but it seems empty right now -->
-       
-      </div>   
-      
-      <!-- The container that holds the two div elements inside -->
+
+  <!-- Navbar -->
+  <div class="navbars"></div>
+
+  <!-- Hero Section -->
+  <!-- <div class="container">
+    <div class="box right">
+      <h1 class="name">ABC Interior Solutions</h1>
+      <h3 class="role-name">Interior & Waterproofing Services</h3>
+      <p style="margin-top:10px;color:#000;">
+        ABC Interior Solutions delivers high-quality interior and waterproofing services
+        with professional inspections, durable materials, and timely execution.
+      </p>
+    </div> -->
+
+    <!-- <div class="box left">
+      <img src="hero-inspector.png" class="home_img">
+    </div> -->
+    <div class="layout-wrapper">
+  <div class="layout-main">
+    <h1>About us</h1>
+    <p>We create smart IoT solutions that connect people and devices efficiently.
+Our team blends technology and design to empower businesses and users.
+We focus on innovation, sustainability, and transforming industries.</p>
+  </div>
+  <div class="layout-side">
+    <img src="resized_1414x1292.png" alt="" class="home_img">
+  </div>
+</div>
 
 
-            <div class="container">
-        <div class="box right">
-          <h1 class="name">ABC Interior Solutions</h1>
-          <h3 class="role-name">Interior & Waterproofing Services</h3>
-                    <h3 style="color: black; margin-top: 8px;" >**ABC Interior Solutions** provides reliable interior and waterproofing services, specializing in flooring, walls, ceilings, and durable finishing. The company focuses on quality materials, detailed inspections, and professional execution to deliver long-lasting results with timely completion.</h3>
 
-        </div> <!-- The first box with class 'left' -->
+  </div>
+      <h2 class="heading">customer_details</h2>
 
+    <header class="header">
+        <h1>ABC Interior Solutions</h1>
+        <p>Interior & Waterproofing Services</p>
+    </header>
+    <br><br>
 
-        <div class="box left">
-          <img src="hero-inspector.png" alt="" class="home_img" style=" ">
-        </div> <!-- The second box with class 'right' -->
-      </div>
+  <!-- ================= FORM ================= -->
+  <form class="service-form" id="inspectionForm">
 
+    <div class="form-group">
+      <label>Customer Name</label>
+      <input type="text" id="customerName" required>
+    </div>
 
+    <div class="form-group">
+      <label>Customer Address</label>
+      <textarea id="customerAddress" required></textarea>
+    </div>
 
-      <script src="index.js"></script> <!-- Links to an external JavaScript file for functionality -->
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="phone" required>
+    </div>
+
+    <div class="form-group">
+      <label>Area (Sqft)</label>
+      <input type="number" id="sqt" required>
+    </div>
+
+    <div class="form-group">
+      <label>Upload Client Image</label>
+      <input type="file" id="clientImage">
+    </div>
+
+    <button type="submit" class="submit-btn">Submit</button>
+  </form>
+
+  <!-- PDF Library -->
+
+  <!-- Main JS -->
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script type="module" src="index.js"></script>
+
 </body>
 </html>
